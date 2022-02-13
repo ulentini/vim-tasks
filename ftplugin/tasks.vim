@@ -13,6 +13,7 @@ let b:loaded_tasks = 1
 " MAPPINGS
 nnoremap <buffer> <leader>n :call NewTask(1)<cr>
 nnoremap <buffer> <leader>N :call NewTask(-1)<cr>
+nnoremap <buffer> <leader>m :call NewTask(0)<cr>
 nnoremap <buffer> <leader>d :call TaskComplete()<cr>
 nnoremap <buffer> <leader>x :call TaskCancel()<cr>
 nnoremap <buffer> <leader>a :call TasksArchive()<cr>
@@ -55,7 +56,12 @@ function! NewTask(direction)
   let l:isMatch = match(l:line, s:regProject)
   let l:text = g:TasksMarkerBase . ' '
 
-  if a:direction == -1
+  if a:direction == 0
+    call AddBaseLineMarker()
+    call AddAttribute('created', strftime(s:dateFormat))
+    exec 'normal ^'
+    return
+  elseif a:direction == -1
     exec 'normal O' . l:text
   else
     exec 'normal o' . l:text
@@ -65,7 +71,15 @@ function! NewTask(direction)
     exec 'normal >>'
   endif
 
-  startinsert!
+  call AddAttribute('created', strftime(s:dateFormat))
+
+  exec 'normal ^ll'
+  startinsert
+endfunc
+
+function! AddBaseLineMarker()
+  let l:text = g:TasksMarkerBase . ' '
+  exec 'normal ^i' . l:text
 endfunc
 
 function! SetLineMarker(marker)
